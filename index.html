@@ -1,17 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Fortunately Time & Weather</title>
 
 <style>
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
+  * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: "Poppins", sans-serif;
     background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
@@ -22,15 +17,7 @@
     padding: 40px 20px;
     color: #fff;
   }
-
-  h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 25px;
-    text-align: center;
-    text-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  }
-
+  h1 { font-size: 2rem; margin-bottom: 25px; text-shadow: 0 2px 6px rgba(0,0,0,0.3); }
   #cities {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
@@ -38,127 +25,168 @@
     width: 100%;
     max-width: 1100px;
   }
-
   .city {
     position: relative;
     border-radius: 20px;
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255,255,255,0.15);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    animation: fadeIn 0.8s ease forwards;
+    border: 1px solid rgba(255,255,255,0.3);
+    transition: transform 0.3s;
   }
-
-  .city:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
-  }
-
-  .city img {
-    width: 100%;
-    height: 170px;
-    object-fit: cover;
-  }
-
-  .city-info {
-    padding: 20px;
-    text-align: center;
-    background: rgba(0, 0, 0, 0.25);
-  }
-
-  .city h3 {
-    font-size: 1.3rem;
-    margin-bottom: 6px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  }
-
-  .time {
-    font-size: 1.1rem;
-    color: #f0f0f0;
-  }
-
-  .temp {
-    margin-top: 8px;
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: #00ffff;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(15px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  @media (max-width: 600px) {
-    h1 {
-      font-size: 1.6rem;
-    }
+  .city img { width: 100%; height: 170px; object-fit: cover; }
+  .city-info { padding: 20px; text-align: center; background: rgba(0,0,0,0.25); }
+  .city h3 { margin-bottom: 6px; }
+  .city .condition { font-size: 0.9rem; margin-top: 4px; font-weight: 500; } /* <-- YENİ EKLENEN STİL */
+  .change-photo {
+    margin-top: 10px;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    padding: 6px 10px;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
   }
 </style>
 </head>
-
 <body>
 <h1>🌍 Fortunately' Time & Weather</h1>
 <div id="cities"></div>
 
-<script>
-const cities = [
-  { name: "Ankara", timezone: "Europe/Istanbul", lat: 39.9334, lon: 32.8597, img: "https://pbs.twimg.com/media/G3ALijdXcAA4cI4?format=jpg&name=900x900" },
-  { name: "Munich", timezone: "Europe/Berlin", lat: 48.1351, lon: 11.5820, img: "https://tallgirlbigworld.com/wp-content/uploads/2021/10/Marienplatz-Munich.jpg" },
-  { name: "Boston", timezone: "America/New_York", lat: 42.3601, lon: -71.0589, img: "https://www.travelandleisure.com/thmb/OxTfa-TTiGTLm_jUvSw2egK7eSs=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/boston-massachusetts-BOSTONTG0221-719aef2eeb1c4929b6c839715e34a69e.jpg" },
-  { name: "Leipzig", timezone: "Europe/Berlin", lat: 51.3397, lon: 12.3731, img: "https://img.ecmaps.de/remote/.webp?url=https%3A%2F%2Fdam.destination.one%2F2514134%2Fe9e1b4e85a01247d6242aa96e7a67f36d1db43aacb3a2b004410b3e8bfd920cb%2Fyour-meeting-conference-in-leipzig-augustusplatz-with-opera-gewandhaus-city-hochhaus.jpg&scale=both&mode=crop&quality=90&width=751&height=563" },
-  { name: "Tucson", timezone: "America/Phoenix", lat: 32.2226, lon: -110.9747, img: "https://wnpa.org/sites/default/files/styles/scale_1920/public/2025-04/qUmhXeM1COMBFlSa.webp?itok=sFd5Ijpq" },
-  { name: "San Diego", timezone: "America/Los_Angeles", lat: 32.7157, lon: -117.1611, img: "https://specials-images.forbesimg.com/dam/imageserve/1120536785/960x0.jpg?fit=scale" }
-];
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-const container = document.getElementById("cities");
+  const firebaseConfig = {
+    apiKey: "AIzaSyCUTBQ5oIgF1GEU8rGj9Mxqz7a2g1Ecswk",
+    authDomain: "timetemp-9b1a5.firebaseapp.com",
+    databaseURL: "https://timetemp-9b1a5-default-rtdb.firebaseio.com/",
+    projectId: "timetemp-9b1a5",
+    storageBucket: "timetemp-9b1a5.firebasestorage.app",
+    messagingSenderId: "580366684921",
+    appId: "1:580366684921:web:2133261bcfccc0a21a0828",
+    measurementId: "G-THB6G2TWEV"
+  };
 
-cities.forEach(city => {
-  const div = document.createElement("div");
-  div.className = "city";
-  div.innerHTML = `
-    <img src="${city.img}" alt="${city.name}">
-    <div class="city-info">
-      <h3>${city.name}</h3>
-      <p class="time">--:--</p>
-      <p class="temp">-- °C</p>
-    </div>
-  `;
-  container.appendChild(div);
-  city.element = div;
-});
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-// Update local time
-function updateTime() {
-  const now = new Date();
+  // <-- DEĞİŞİKLİK: 'cities' dizisi varsayılan 'img' linkleriyle güncellendi.
+  const cities = [
+    { name: "Ankara", timezone: "Europe/Istanbul", lat: 39.9334, lon: 32.8597, img: "https://pbs.twimg.com/media/G3ALijdXcAA4cI4?format=jpg&name=900x900" },
+    { name: "Munich", timezone: "Europe/Berlin", lat: 48.1351, lon: 11.5820, img: "https://tallgirlbigworld.com/wp-content/uploads/2021/10/Marienplatz-Munich.jpg" },
+    { name: "Boston", timezone: "America/New_York", lat: 42.3601, lon: -71.0589, img: "https://www.travelandleisure.com/thmb/OxTfa-TTiGTLm_jUvSw2egK7eSs=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/boston-massachusetts-BOSTONTG0221-719aef2eeb1c4929b6c839715e34a69e.jpg" },
+    { name: "Leipzig", timezone: "Europe/Berlin", lat: 51.3397, lon: 12.3731, img: "https://img.ecmaps.de/remote/.webp?url=https%3A%2F%2Fdam.destination.one%2F2514134%2Fe9e1b4e85a01247d6242aa96e7a67f36d1db43aacb3a2b004410b3e8bfd920cb%2Fyour-meeting-conference-in-leipzig-augustusplatz-with-opera-gewandhaus-city-hochhaus.jpg&scale=both&mode=crop&quality=90&width=751&height=563" },
+    { name: "Tucson", timezone: "America/Phoenix", lat: 32.2226, lon: -110.9747, img: "https://wnpa.org/sites/default/files/styles/scale_1920/public/2025-04/qUmhXeM1COMBFlSa.webp?itok=sFd5Ijpq" },
+    { name: "San Diego", timezone: "America/Los_Angeles", lat: 32.7157, lon: -117.1611, img: "https://specials-images.forbesimg.com/dam/imageserve/1120536785/960x0.jpg?fit=scale" }
+  ];
+
+  // <-- YENİ: Hava durumu kodları için 'weatherDescriptions' objesi eklendi.
+  const weatherDescriptions = {
+    0: "☀️ Clear sky",
+    1: "🌤 Mainly clear",
+    2: "⛅ Partly cloudy",
+    3: "☁️ Overcast",
+    45: "🌫 Fog",
+    48: "🌫 Depositing rime fog",
+    51: "🌦 Light drizzle",
+    53: "🌦 Moderate drizzle",
+    55: "🌧 Dense drizzle",
+    61: "🌦 Slight rain",
+    63: "🌧 Moderate rain",
+    65: "🌧 Heavy rain",
+    71: "🌨 Slight snow",
+    73: "🌨 Moderate snow",
+    75: "❄️ Heavy snow",
+    77: "🌨 Snow grains",
+    80: "🌧 Rain showers",
+    81: "🌧 Heavy showers",
+    82: "🌧 Violent rain showers",
+    95: "⛈ Thunderstorm",
+    96: "⛈ Thunderstorm with hail",
+    99: "🌩 Severe thunderstorm"
+  };
+
+  const container = document.getElementById("cities");
+
+  // Build UI for each city
   cities.forEach(city => {
-    const timeStr = now.toLocaleTimeString("en-GB", { timeZone: city.timezone, hour: "2-digit", minute: "2-digit" });
-    city.element.querySelector(".time").textContent = timeStr;
-  });
-}
+    const div = document.createElement("div");
+    div.className = "city";
+    
+    // <-- DEĞİŞİKLİK: 
+    // 1. <img> etiketinin 'src' özelliği 'city.img' ile dolduruldu.
+    // 2. Hava durumu açıklaması için '.condition' sınıfına sahip <p> eklendi.
+    div.innerHTML = `
+      <img src="${city.img}" alt="${city.name}"> 
+      <div class="city-info">
+        <h3>${city.name}</h3>
+        <p class="time">--:--</p>
+        <p class="temp">-- °C</p>
+        <p class="condition">--</p> 
+        <button class="change-photo">Change Photo</button>
+      </div>
+    `;
+    container.appendChild(div);
+    city.element = div;
 
-// Fetch weather
-async function updateWeather() {
-  for (const city of cities) {
-    try {
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current_weather=true`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const temp = data.current_weather.temperature;
-      city.element.querySelector(".temp").textContent = `${temp} °C`;
-    } catch {
-      city.element.querySelector(".temp").textContent = "N/A";
+    // Button: Change photo
+    div.querySelector(".change-photo").addEventListener("click", () => {
+      const newUrl = prompt(`Enter image URL for ${city.name}:`);
+      if (newUrl && newUrl.startsWith("http")) {
+        set(ref(db, "cities/" + city.name + "/img"), newUrl);
+      } else {
+        alert("Please enter a valid image URL");
+      }
+    });
+
+    // Firebase listener
+    // Bu listener, veritabanından bir URL gelirse varsayılan resmin üzerine yazar.
+    onValue(ref(db, "cities/" + city.name + "/img"), snap => {
+      const url = snap.val();
+      if (url) {
+        div.querySelector("img").src = url;
+      }
+    });
+  });
+
+  // Time updater
+  function updateTime() {
+    const now = new Date();
+    cities.forEach(city => {
+      const timeStr = now.toLocaleTimeString("en-GB", {
+        timeZone: city.timezone,
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+      city.element.querySelector(".time").textContent = timeStr;
+    });
+  }
+
+  // <-- DEĞİŞİKLİK: 'updateWeather' fonksiyonu 'weathercode' alacak şekilde güncellendi.
+  async function updateWeather() {
+    for (const city of cities) {
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current_weather=true`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const temp = data.current_weather.temperature;
+        const code = data.current_weather.weathercode;
+        const desc = weatherDescriptions[code] || "🌈 Unknown"; // Açıklamayı al
+
+        city.element.querySelector(".temp").textContent = `${temp} °C`;
+        city.element.querySelector(".condition").textContent = desc; // Açıklamayı HTML'e yaz
+      } catch {
+        city.element.querySelector(".temp").textContent = "N/A";
+        city.element.querySelector(".condition").textContent = "N/A"; // Hata durumunda
+      }
     }
   }
-}
 
-updateTime();
-setInterval(updateTime, 1000);
-updateWeather();
-setInterval(updateWeather, 10 * 60 * 1000);
+  updateTime();
+  setInterval(updateTime, 1000);
+  updateWeather();
+  setInterval(updateWeather, 10 * 60 * 1000);
 </script>
 </body>
 </html>
-
