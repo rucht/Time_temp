@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,16 +15,39 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40px 20px;
+    padding: 20px;
     color: #fff;
   }
-  h1 { font-size: 2rem; margin-bottom: 25px; text-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+
+  /* --- CURRENCY TICKER --- */
+  #currency-ticker {
+    width: 100%;
+    max-width: 1100px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    padding: 10px 20px;
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+  .currency-item span { color: #ffeb3b; margin-left: 5px; }
+
+  h1 { font-size: 2rem; margin-bottom: 25px; text-shadow: 0 2px 6px rgba(0,0,0,0.3); text-align: center; }
+  
+  /* --- CITIES GRID --- */
   #cities {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
     gap: 25px;
     width: 100%;
     max-width: 1100px;
+    margin-bottom: 50px; /* Space before food section */
   }
   .city {
     position: relative;
@@ -33,29 +57,139 @@
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255,255,255,0.3);
     transition: transform 0.3s;
+    display: flex;
+    flex-direction: column;
   }
-  .city img { width: 100%; height: 170px; object-fit: cover; }
-  .city-info { padding: 20px; text-align: center; background: rgba(0,0,0,0.25); }
+  .city img { width: 100%; height: 180px; object-fit: cover; background: #ddd; }
+  .city-info { padding: 20px; text-align: center; background: rgba(0,0,0,0.25); flex-grow: 1; }
   .city h3 { margin-bottom: 6px; }
-  .city .condition { font-size: 0.9rem; margin-top: 4px; font-weight: 500; } /* <-- YENİ EKLENEN STİL */
-  .change-photo {
-    margin-top: 10px;
-    background: rgba(255,255,255,0.2);
-    border: none;
-    padding: 6px 10px;
-    color: #fff;
-    border-radius: 8px;
-    cursor: pointer;
+  .city .condition { font-size: 0.9rem; margin-top: 4px; font-weight: 500; opacity: 0.9; }
+  
+  /* --- PHOTO ACTIONS --- */
+  .actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
   }
+  .action-btn {
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+    font-size: 1.1rem;
+  }
+  .action-btn:hover { background: rgba(255,255,255,0.4); }
+  .file-input { display: none; }
+
+  /* --- FOOD SECTION STYLES --- */
+  #food-section {
+    width: 100%;
+    max-width: 1100px;
+    margin-top: 20px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+  }
+  .upload-food-btn {
+    background: #ffeb3b;
+    color: #333;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+  }
+  .upload-food-btn:hover { transform: scale(1.05); }
+
+  #food-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+  }
+  .food-item {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    height: 150px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    background: rgba(0,0,0,0.1);
+  }
+  .food-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+  }
+  .food-item:hover img { transform: scale(1.1); }
+  
+  /* Delete button for food */
+  .delete-food {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(255,0,0,0.7);
+    color: white;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .food-item:hover .delete-food { opacity: 1; }
+
 </style>
 </head>
 <body>
+
+<div id="currency-ticker">
+    <div class="currency-item" id="eur-usd">€1 = <span>Loading...</span> $</div>
+    <div class="currency-item" id="usd-try">$1 = <span>Loading...</span> TL</div>
+</div>
+
 <h1>🌍 Fortunately' Time & Weather</h1>
+
 <div id="cities"></div>
+
+<div id="food-section">
+    <div class="section-header">
+        <h2>📸 Local Tastes</h2>
+        <label class="upload-food-btn">
+            📷 Upload Food
+            <input type="file" id="food-input" class="file-input" accept="image/*">
+        </label>
+    </div>
+    <div id="food-gallery">
+        <p style="grid-column: 1/-1; text-align: center; opacity: 0.7;">No food photos yet. Upload one!</p>
+    </div>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+  import { getDatabase, ref, onValue, set, push, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCUTBQ5oIgF1GEU8rGj9Mxqz7a2g1Ecswk",
@@ -71,8 +205,9 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // <-- DEĞİŞİKLİK: 'cities' dizisi varsayılan 'img' linkleriyle güncellendi.
+  // Added Istanbul to the list
   const cities = [
+    { name: "Istanbul", timezone: "Europe/Istanbul", lat: 41.0082, lon: 28.9784, img: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
     { name: "Ankara", timezone: "Europe/Istanbul", lat: 39.9334, lon: 32.8597, img: "https://pbs.twimg.com/media/G3ALijdXcAA4cI4?format=jpg&name=900x900" },
     { name: "Munich", timezone: "Europe/Berlin", lat: 48.1351, lon: 11.5820, img: "https://tallgirlbigworld.com/wp-content/uploads/2021/10/Marienplatz-Munich.jpg" },
     { name: "Boston", timezone: "America/New_York", lat: 42.3601, lon: -71.0589, img: "https://www.travelandleisure.com/thmb/OxTfa-TTiGTLm_jUvSw2egK7eSs=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/boston-massachusetts-BOSTONTG0221-719aef2eeb1c4929b6c839715e34a69e.jpg" },
@@ -81,42 +216,66 @@
     { name: "San Diego", timezone: "America/Los_Angeles", lat: 32.7157, lon: -117.1611, img: "https://specials-images.forbesimg.com/dam/imageserve/1120536785/960x0.jpg?fit=scale" }
   ];
 
-  // <-- YENİ: Hava durumu kodları için 'weatherDescriptions' objesi eklendi.
   const weatherDescriptions = {
-    0: "☀️ Clear sky",
-    1: "🌤 Mainly clear",
-    2: "⛅ Partly cloudy",
-    3: "☁️ Overcast",
-    45: "🌫 Fog",
-    48: "🌫 Depositing rime fog",
-    51: "🌦 Light drizzle",
-    53: "🌦 Moderate drizzle",
-    55: "🌧 Dense drizzle",
-    61: "🌦 Slight rain",
-    63: "🌧 Moderate rain",
-    65: "🌧 Heavy rain",
-    71: "🌨 Slight snow",
-    73: "🌨 Moderate snow",
-    75: "❄️ Heavy snow",
-    77: "🌨 Snow grains",
-    80: "🌧 Rain showers",
-    81: "🌧 Heavy showers",
-    82: "🌧 Violent rain showers",
-    95: "⛈ Thunderstorm",
-    96: "⛈ Thunderstorm with hail",
-    99: "🌩 Severe thunderstorm"
+    0: "☀️ Clear", 1: "🌤 Mainly clear", 2: "⛅ Partly cloudy", 3: "☁️ Overcast",
+    45: "🌫 Fog", 48: "🌫 Rime fog", 51: "🌦 Drizzle", 53: "🌦 Mod. drizzle", 55: "🌧 Dense drizzle",
+    61: "🌦 Slight rain", 63: "🌧 Mod. rain", 65: "🌧 Heavy rain", 71: "🌨 Slight snow",
+    73: "🌨 Mod. snow", 75: "❄️ Heavy snow", 77: "🌨 Snow grains", 80: "🌧 Showers",
+    81: "🌧 Heavy showers", 82: "🌧 Violent showers", 95: "⛈ Thunderstorm",
+    96: "⛈ Hail Storm", 99: "🌩 Severe Storm"
   };
 
   const container = document.getElementById("cities");
+  const foodGallery = document.getElementById("food-gallery");
 
-  // Build UI for each city
+  // --- 1. Currency Logic ---
+  async function updateCurrency() {
+    try {
+        const res = await fetch("https://api.frankfurter.app/latest?from=USD&to=EUR,TRY");
+        const data = await res.json();
+        const usdToEur = data.rates.EUR; 
+        const usdToTry = data.rates.TRY; 
+        const eurToUsd = (1 / usdToEur).toFixed(3); 
+
+        document.querySelector("#eur-usd span").textContent = eurToUsd;
+        document.querySelector("#usd-try span").textContent = usdToTry.toFixed(2);
+    } catch (e) {
+        console.error("Currency Error", e);
+    }
+  }
+
+  // --- 2. Image Compression Helper ---
+  function resizeImage(file, callback) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            const maxWidth = 800; // Limit width
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+                height = height * (maxWidth / width);
+                width = maxWidth;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.7); // Compress
+            callback(dataUrl);
+        };
+        img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // --- 3. Build City UI ---
   cities.forEach(city => {
     const div = document.createElement("div");
     div.className = "city";
-    
-    // <-- DEĞİŞİKLİK: 
-    // 1. <img> etiketinin 'src' özelliği 'city.img' ile dolduruldu.
-    // 2. Hava durumu açıklaması için '.condition' sınıfına sahip <p> eklendi.
     div.innerHTML = `
       <img src="${city.img}" alt="${city.name}"> 
       <div class="city-info">
@@ -124,69 +283,114 @@
         <p class="time">--:--</p>
         <p class="temp">-- °C</p>
         <p class="condition">--</p> 
-        <button class="change-photo">Change Photo</button>
+        <div class="actions">
+            <label class="action-btn" title="Upload Photo">
+                📷 <input type="file" class="file-input" accept="image/*">
+            </label>
+            <button class="action-btn link-btn" title="Paste Link">🔗</button>
+        </div>
       </div>
     `;
     container.appendChild(div);
     city.element = div;
 
-    // Button: Change photo
-    div.querySelector(".change-photo").addEventListener("click", () => {
+    // Link Upload
+    div.querySelector(".link-btn").addEventListener("click", () => {
       const newUrl = prompt(`Enter image URL for ${city.name}:`);
-      if (newUrl && newUrl.startsWith("http")) {
-        set(ref(db, "cities/" + city.name + "/img"), newUrl);
-      } else {
-        alert("Please enter a valid image URL");
-      }
+      if (newUrl && newUrl.startsWith("http")) set(ref(db, "cities/" + city.name + "/img"), newUrl);
     });
 
-    // Firebase listener
-    // Bu listener, veritabanından bir URL gelirse varsayılan resmin üzerine yazar.
+    // File Upload (City)
+    div.querySelector(".file-input").addEventListener("change", (e) => {
+        if (e.target.files[0]) {
+            resizeImage(e.target.files[0], (dataUrl) => {
+                set(ref(db, "cities/" + city.name + "/img"), dataUrl);
+            });
+        }
+    });
+
+    // Listen for City Image Changes
     onValue(ref(db, "cities/" + city.name + "/img"), snap => {
-      const url = snap.val();
-      if (url) {
-        div.querySelector("img").src = url;
-      }
+      if(snap.val()) div.querySelector("img").src = snap.val();
     });
   });
 
-  // Time updater
+  // --- 4. Food Section Logic ---
+  
+  // Upload Food
+  document.getElementById("food-input").addEventListener("change", (e) => {
+    if (e.target.files[0]) {
+        resizeImage(e.target.files[0], (dataUrl) => {
+            // Push to a list in Firebase
+            push(ref(db, "foods"), {
+                url: dataUrl,
+                timestamp: Date.now()
+            });
+        });
+    }
+  });
+
+  // Listen for Food List
+  onValue(ref(db, "foods"), snap => {
+    foodGallery.innerHTML = ""; // Clear list
+    const data = snap.val();
+    
+    if (!data) {
+        foodGallery.innerHTML = '<p style="grid-column: 1/-1; text-align: center; opacity: 0.7;">No food photos yet. Upload one!</p>';
+        return;
+    }
+
+    // Loop through keys (IDs) and values
+    Object.keys(data).forEach(key => {
+        const item = data[key];
+        const div = document.createElement("div");
+        div.className = "food-item";
+        div.innerHTML = `
+            <img src="${item.url}" loading="lazy">
+            <button class="delete-food" title="Delete">🗑️</button>
+        `;
+        
+        // Delete functionality
+        div.querySelector(".delete-food").addEventListener("click", () => {
+            if(confirm("Delete this food photo?")) {
+                remove(ref(db, "foods/" + key));
+            }
+        });
+
+        // Add to top (prepend)
+        foodGallery.insertBefore(div, foodGallery.firstChild);
+    });
+  });
+
+
+  // --- 5. Time & Weather Updates ---
   function updateTime() {
     const now = new Date();
     cities.forEach(city => {
-      const timeStr = now.toLocaleTimeString("en-GB", {
-        timeZone: city.timezone,
-        hour: "2-digit",
-        minute: "2-digit"
-      });
+      const timeStr = now.toLocaleTimeString("en-GB", { timeZone: city.timezone, hour: "2-digit", minute: "2-digit" });
       city.element.querySelector(".time").textContent = timeStr;
     });
   }
 
-  // <-- DEĞİŞİKLİK: 'updateWeather' fonksiyonu 'weathercode' alacak şekilde güncellendi.
   async function updateWeather() {
     for (const city of cities) {
       try {
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current_weather=true`;
         const res = await fetch(url);
         const data = await res.json();
-        const temp = data.current_weather.temperature;
         const code = data.current_weather.weathercode;
-        const desc = weatherDescriptions[code] || "🌈 Unknown"; // Açıklamayı al
-
-        city.element.querySelector(".temp").textContent = `${temp} °C`;
-        city.element.querySelector(".condition").textContent = desc; // Açıklamayı HTML'e yaz
+        city.element.querySelector(".temp").textContent = `${data.current_weather.temperature} °C`;
+        city.element.querySelector(".condition").textContent = weatherDescriptions[code] || "Unknown";
       } catch {
         city.element.querySelector(".temp").textContent = "N/A";
-        city.element.querySelector(".condition").textContent = "N/A"; // Hata durumunda
       }
     }
   }
 
-  updateTime();
-  setInterval(updateTime, 1000);
-  updateWeather();
-  setInterval(updateWeather, 10 * 60 * 1000);
+  updateTime(); setInterval(updateTime, 1000);
+  updateWeather(); setInterval(updateWeather, 10 * 60 * 1000);
+  updateCurrency(); setInterval(updateCurrency, 60 * 60 * 1000);
+
 </script>
 </body>
 </html>
