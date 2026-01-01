@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Fortunately & Yılın Malı 2025</title>
+<title>Fortunately</title>
 
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -12,16 +12,10 @@
     --bg-gradient: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
     --card-bg: rgba(255, 255, 255, 0.15);
     --text-color: #fff;
-    --currency-num-color: #003366; 
+    --currency-num-color: #003366; /* Dark Blue for visibility */
     --card-border: rgba(255, 255, 255, 0.3);
     --food-btn-bg: #ffeb3b;
     --food-btn-text: #333;
-    
-    /* --- CHRISTMAS THEME COLORS --- */
-    --xmas-red: #d42426;
-    --xmas-green: #2f5a2e;
-    --xmas-gold: #f8b229;
-    --xmas-light: #fdf6e3;
   }
 
   body {
@@ -41,30 +35,16 @@
     --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     --card-bg: rgba(0, 0, 0, 0.5);
     --text-color: #e0e0e0;
-    --currency-num-color: #4db8ff; 
+    --currency-num-color: #4db8ff; /* Light Blue for Dark Mode */
     --card-border: rgba(255, 255, 255, 0.1);
     --food-btn-bg: #4db8ff;
     --food-btn-text: #000;
   }
 
-  /* --- GLOBAL CHRISTMAS MODE STYLES --- */
-  body.xmas-mode {
-    background: linear-gradient(135deg, rgba(212, 36, 38, 0.9) 0%, rgba(47, 90, 46, 0.9) 100%), url('https://www.transparenttextures.com/patterns/snow.png') !important;
-    --card-border: var(--xmas-gold);
-    --currency-num-color: var(--xmas-gold);
-  }
-  body.xmas-mode h1 {
-      text-shadow: 2px 2px 4px var(--xmas-red), 0 0 10px var(--xmas-gold);
-  }
-  body.xmas-mode .city, 
-  body.xmas-mode #currency-ticker {
-      border-color: var(--xmas-gold);
-      box-shadow: 0 5px 15px rgba(248, 178, 41, 0.3);
-  }
-
-  /* --- TOGGLE BUTTONS --- */
+  /* --- TOP RIGHT TOGGLE BUTTON --- */
   .theme-toggle {
     position: absolute;
+    top: 20px;
     right: 20px;
     background: rgba(255, 255, 255, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.4);
@@ -81,11 +61,6 @@
     z-index: 100;
   }
   .theme-toggle:hover { background: rgba(255, 255, 255, 0.4); transform: scale(1.1); }
-  
-  #theme-toggle { top: 20px; }
-  #xmas-toggle { top: 75px; background: rgba(212, 36, 38, 0.5); border-color: var(--xmas-gold); }
-  #xmas-toggle:hover { background: var(--xmas-green); }
-
 
   /* --- CURRENCY TICKER --- */
   #currency-ticker {
@@ -97,7 +72,7 @@
     border-radius: 15px;
     padding: 10px 20px;
     margin-bottom: 30px;
-    margin-top: 80px; 
+    margin-top: 40px; /* Space for toggle button */
     display: flex;
     justify-content: center;
     gap: 30px;
@@ -138,21 +113,6 @@
   .city-info { padding: 20px; text-align: center; background: rgba(0,0,0,0.1); flex-grow: 1; }
   .city h3 { margin-bottom: 6px; }
   .city .condition { font-size: 0.9rem; margin-top: 4px; font-weight: 500; opacity: 0.9; }
-
-  /* YENİ: COUNTDOWN STİLİ */
-  .countdown {
-      margin-top: 10px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--xmas-gold);
-      background: rgba(0,0,0,0.4);
-      padding: 5px 10px;
-      border-radius: 12px;
-      border: 1px solid var(--xmas-red);
-      display: inline-block;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  }
   
   /* --- PHOTO ACTIONS --- */
   .actions {
@@ -178,185 +138,11 @@
   .action-btn:hover { background: rgba(255,255,255,0.4); }
   .file-input { display: none; }
 
-  /* --- GAME SECTION STYLES --- */
-  #game-section {
-    width: 100%;
-    max-width: 900px;
-    background: linear-gradient(135deg, rgba(212, 36, 38, 0.15) 0%, rgba(47, 90, 46, 0.15) 100%), url('https://www.transparenttextures.com/patterns/snow.png');
-    backdrop-filter: blur(12px);
-    border: 3px solid var(--xmas-gold);
-    border-radius: 25px;
-    padding: 30px;
-    margin-bottom: 50px;
-    text-align: center;
-    position: relative;
-    box-shadow: 0 10px 30px rgba(212, 36, 38, 0.3), inset 0 0 20px rgba(248, 178, 41, 0.2);
-    overflow: hidden;
-  }
-
-  #game-section::before {
-    content: '🎄🎅🎄☃️🎄🎁🎄🎅🎄❄️🎄🦌🎄';
-    display: block;
-    text-align: center;
-    font-size: 1.5rem;
-    margin-bottom: 15px;
-    letter-spacing: 3px;
-    opacity: 0.9;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.2);
-  }
-
-  .game-header h2 {
-    font-size: 2rem;
-    margin-bottom: 10px;
-    background: repeating-linear-gradient(45deg, var(--text-color), var(--text-color) 10px, var(--xmas-red) 10px, var(--xmas-red) 20px);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    font-weight: 800;
-  }
-  
-  .game-subtitle {
-    font-size: 1rem;
-    opacity: 0.9;
-    margin-bottom: 30px;
-    font-weight: 500;
-  }
-
-  .battle-arena {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-
-  .choice-card {
-    flex: 1;
-    min-width: 280px;
-    min-height: 220px;
-    background: rgba(255,255,255,0.1);
-    border: 3px dashed rgba(255, 255, 255, 0.5);
-    border-radius: 15px;
-    padding: 25px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.15rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    position: relative;
-    overflow: hidden;
-  }
-
-  #card-a::after { content: '🎁'; position: absolute; bottom: 10px; right: 10px; font-size: 1.5rem; opacity: 0.6; }
-  #card-b::after { content: '🧦'; position: absolute; bottom: 10px; right: 10px; font-size: 1.5rem; opacity: 0.6; }
-
-  .choice-card:hover {
-    transform: translateY(-5px);
-    background: rgba(255,255,255,0.2);
-    border-style: solid;
-    box-shadow: 0 0 20px var(--xmas-gold), inset 0 0 10px var(--xmas-red);
-  }
-
-  .choice-card:active {
-    transform: scale(0.98);
-  }
-
-  .vs-badge {
-    background: radial-gradient(circle at 30% 30%, #ff7678, var(--xmas-red));
-    color: var(--xmas-gold);
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 1.3rem;
-    border: 3px solid var(--xmas-gold);
-    z-index: 2;
-    box-shadow: 0 0 15px var(--xmas-red), inset 0 0 5px rgba(255,255,255,0.5);
-    align-self: center;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.4);
-  }
-
-  #winner-display {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    animation: fadeIn 1s ease;
-    padding: 20px;
-  }
-
-  .winner-gif {
-      width: 180px; 
-      height: auto;
-      border-radius: 15px;
-      border: 4px solid var(--xmas-gold);
-      box-shadow: 0 0 25px var(--xmas-gold), 0 0 10px var(--xmas-red);
-      margin-bottom: 15px;
-  }
-
-  .winner-title { font-size: 1.5rem; font-weight: bold; color: var(--xmas-gold); text-shadow: 0 0 10px rgba(248, 178, 41, 0.5); margin-bottom: 10px; }
-  
-  .winner-culprit { 
-      font-size: 2.2rem; 
-      font-weight: 800; 
-      margin-bottom: 15px; 
-      letter-spacing: 1px;
-      color: var(--xmas-red);
-      background: url('https://www.transparenttextures.com/patterns/snow.png'), rgba(255,255,255,0.9);
-      padding: 5px 25px;
-      border-radius: 15px;
-      border: 3px dashed var(--xmas-green);
-      text-shadow: 2px 2px 0px var(--xmas-gold);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-  }
-
-  .winner-photo {
-      width: 120px;
-      height: 120px;
-      object-fit: cover;
-      border-radius: 50%;
-      border: 4px solid var(--xmas-gold);
-      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-      margin-bottom: 20px;
-  }
-  
-  .winner-text { font-size: 1.2rem; font-style: italic; opacity: 0.9; max-width: 600px; margin-bottom: 25px; font-weight: 500; }
-  
-  .restart-btn {
-    padding: 12px 30px;
-    background: var(--xmas-red);
-    color: var(--xmas-light);
-    border: 2px solid var(--xmas-gold);
-    border-radius: 25px;
-    font-weight: bold;
-    font-size: 1.1rem;
-    cursor: pointer;
-    margin-top: 15px;
-    transition: all 0.2s;
-    box-shadow: 0 5px 15px rgba(212, 36, 38, 0.4);
-  }
-  .restart-btn:hover { 
-      transform: scale(1.05); 
-      background: var(--xmas-green);
-      box-shadow: 0 0 20px var(--xmas-green); 
-  }
-
-  @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-
-
   /* --- FOOD SECTION STYLES --- */
   #food-section {
     width: 100%;
     max-width: 1100px;
     margin-top: 20px;
-    margin-bottom: 50px;
   }
   .section-header {
     display: flex;
@@ -365,10 +151,7 @@
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 1px solid var(--card-border);
-    transition: border-color 0.5s ease;
   }
-  body.xmas-mode .section-header { border-color: var(--xmas-gold); }
-
   .upload-food-btn {
     background: var(--food-btn-bg);
     color: var(--food-btn-text);
@@ -431,8 +214,6 @@
 <body>
 
 <button id="theme-toggle" class="theme-toggle" title="Toggle Dark Mode">🌙</button>
-<button id="xmas-toggle" class="theme-toggle" title="Toggle Christmas Mode">🎅</button>
-
 
 <div id="currency-ticker">
     <div class="currency-item" id="eur-usd">€1 = <span>...</span> USD</div>
@@ -443,33 +224,6 @@
 
 <div id="cities"></div>
 
-<div id="game-section">
-    <div class="game-header">
-        <h2>🎅 Yılın Malı 2025 Seçmeleri 🎄</h2>
-        <p class="game-subtitle" id="game-status">Hangi mallık daha büyük? Seçimini yap, kazananı bul!</p>
-    </div>
-
-    <div class="battle-arena" id="battle-arena">
-        <div class="choice-card" id="card-a">
-            <span class="card-text">Seçenek A</span>
-        </div>
-        
-        <div class="vs-badge">VS</div>
-        
-        <div class="choice-card" id="card-b">
-            <span class="card-text">Seçenek B</span>
-        </div>
-    </div>
-
-    <div id="winner-display">
-        <img src="https://i.hizliresim.com/q8mg9dn.gif" alt="Contravolta" class="winner-gif">
-        <div class="winner-title">🎉 YILIN EN BÜYÜK MALI 2025 🎉</div>
-        <div class="winner-culprit" id="winner-name">İSİM</div>
-        <img id="winner-photo" class="winner-photo" alt="Winner Photo" src="">
-        <div class="winner-text" id="winner-desc">Açıklama</div>
-        <button class="restart-btn" id="restart-game">🎄 Tekrar Oyna 🎅</button>
-    </div>
-</div>
 <div id="food-section">
     <div class="section-header">
         <h2>📸 Local Tastes</h2>
@@ -504,6 +258,7 @@
   // --- Dark Mode Logic ---
   const toggleBtn = document.getElementById("theme-toggle");
   
+  // Check local storage for preference
   if (localStorage.getItem("theme") === "dark") {
     document.body.classList.add("dark-mode");
     toggleBtn.textContent = "☀️";
@@ -515,20 +270,6 @@
     toggleBtn.textContent = isDark ? "☀️" : "🌙";
     localStorage.setItem("theme", isDark ? "dark" : "light");
   });
-
-  // --- YENİ: GLOBAL XMAS MODE LOGIC ---
-  const xmasToggleBtn = document.getElementById("xmas-toggle");
-
-  // Check local storage for xmas preference
-  if (localStorage.getItem("xmasTheme") === "true") {
-      document.body.classList.add("xmas-mode");
-  }
-
-  xmasToggleBtn.addEventListener("click", () => {
-      document.body.classList.toggle("xmas-mode");
-      localStorage.setItem("xmasTheme", document.body.classList.contains("xmas-mode"));
-  });
-
 
   const cities = [
     { name: "Istanbul", timezone: "Europe/Istanbul", lat: 41.0082, lon: 28.9784, img: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
@@ -555,8 +296,13 @@
   // --- Currency Logic (Base EUR) ---
   async function updateCurrency() {
     try {
+        // Fetch rates with Base EUR
         const res = await fetch("https://api.frankfurter.app/latest?from=EUR&to=USD,TRY");
         const data = await res.json();
+        
+        // data.rates.USD is how many USD = 1 EUR
+        // data.rates.TRY is how many TRY = 1 EUR
+        
         document.querySelector("#eur-usd span").textContent = data.rates.USD.toFixed(2);
         document.querySelector("#eur-try span").textContent = data.rates.TRY.toFixed(2);
     } catch (e) {
@@ -596,15 +342,13 @@
   cities.forEach(city => {
     const div = document.createElement("div");
     div.className = "city";
-    // YENİ: COUNTDOWN ELEMENTİ EKLENDİ
     div.innerHTML = `
       <img src="${city.img}" alt="${city.name}"> 
       <div class="city-info">
         <h3>${city.name}</h3>
         <p class="time">--:--</p>
         <p class="temp">-- °C</p>
-        <p class="condition">--</p>
-        <p class="countdown">⏳ Hesaplıyor...</p> 
+        <p class="condition">--</p> 
         <div class="actions">
             <label class="action-btn" title="Upload Photo">
                 📷 <input type="file" class="file-input" accept="image/*">
@@ -660,161 +404,12 @@
     });
   });
 
-  // --- GAME LOGIC (YILIN MALI) ---
-  const mallikData = [
-    { text: "Berkay'ın 1 ocakta yeni yıla girdiği için sevinmesi", culprit: "Berkay" },
-    { text: "Berkay'ın tuvalette çıplak 20dkdır grupla mesajlaşmaktan duşa girememesi", culprit: "Berkay" },
-    { text: "Özgür'ün sim kartı amerikada unutup Türkiye'de yeni sim kart alıp onu da kullanmadan e-sim ile takılması", culprit: "Özgür" },
-    { text: "Kutalp'in yanlışlıkla küçük boy nevresim alması", culprit: "Kutalp" },
-    { text: "Kerim'in en önemli vize belgesini 4e katlayıp rafın altına atıp 4 ay dokunmaması", culprit: "Kerim" },
-    { text: "Berkay'ın At-11 belgesi almadan Almanya'ya gelip Almanya'da 5-6 ayrı sefer sağlık sigortası kurumuna gitmek durumunda kalması, Türkiye'deki SGK'ya sahte montaj belge gönderip onun da fark edilmesi üzerine hala sağlık sigortasının olmaması", culprit: "Berkay" },
-    { text: "Berkay'ın Bümed yeni mekan açılışına gidip Boğaz*ci ceketi giymesi", culprit: "Berkay" },
-    { text: "Berkay'ın TUM'da quiz için sabahlayıp 1-2 dakika geç kalarak geldikten sonra quize girip devamında eve gitmek yerine derste 1.5 saat salya akıtarak uyuması", culprit: "Berkay" },
-    { text: "Kutalp'in De Marke haberin Türkiye’nin dünya kupasında Avustralya’yla olan maçı Vancouverde’de oynanması üzerine yaptığı şaka", culprit: "Kutalp" },
-    { text: "Berkay'ın manitayla hapçı otçu piyasacı mekanı olan Noh Radio önüne gitmesi", culprit: "Berkay" }
-  ];
-
-  // YENİ: Kişilerin Fotoğrafları (Doğrudan linkler)
-  const culpritPhotos = {
-      "Berkay": "https://www.hizliresim.com.tr/uploads/images/1767184295_e04e255d251a09e0.jpeg",
-      "Kutalp": "https://www.hizliresim.com.tr/uploads/images/1767184265_f9e1895f9f7a03bf.jpeg",
-      "Kerim": "https://www.hizliresim.com.tr/uploads/images/1767184214_05912cc9b1352104.jpeg",
-      "Özgür": "https://www.hizliresim.com.tr/uploads/images/1767183953_13b545dba55178c0.jpeg"
-  };
-
-  let gameQueue = [];
-  let currentChampion = null;
-  let currentChallenger = null;
-
-  const cardA = document.getElementById("card-a");
-  const cardB = document.getElementById("card-b");
-  const battleArena = document.getElementById("battle-arena");
-  const winnerDisplay = document.getElementById("winner-display");
-  const gameStatus = document.getElementById("game-status");
-  const winnerName = document.getElementById("winner-name");
-  const winnerDesc = document.getElementById("winner-desc");
-  const winnerPhoto = document.getElementById("winner-photo"); // YENİ
-  const restartBtn = document.getElementById("restart-game");
-
-  // Shuffle Array (Fisher-Yates)
-  function shuffle(array) {
-    let currentIndex = array.length, randomIndex;
-    while (currentIndex != 0) {
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-    }
-    return array;
-  }
-
-  function initGame() {
-    // Reset view
-    battleArena.style.display = "flex";
-    winnerDisplay.style.display = "none";
-    gameStatus.textContent = "Hangi mallık daha büyük? Seçimini yap!";
-    gameStatus.style.display = "block";
-
-    // Setup Queue
-    gameQueue = shuffle([...mallikData]);
-    
-    // Pick first two
-    currentChampion = gameQueue.pop();
-    currentChallenger = gameQueue.pop();
-    
-    renderRound();
-  }
-
-  function renderRound() {
-    // Card A is always the current "King of the Hill" (Champion)
-    cardA.querySelector(".card-text").textContent = currentChampion.text;
-    
-    // Card B is the Challenger
-    cardB.querySelector(".card-text").textContent = currentChallenger.text;
-
-    // Optional: Add visual count
-    gameStatus.textContent = `Kalan Rakip: ${gameQueue.length} | Hangisi Daha Mal? 🎅`;
-  }
-
-  function handleSelection(winnerSide) {
-    // If 'A' wins, currentChampion stays, Challenger is discarded.
-    // If 'B' wins, currentChallenger becomes the new Champion.
-    
-    if (winnerSide === 'B') {
-        currentChampion = currentChallenger;
-    }
-    // If winnerSide === 'A', currentChampion remains the same.
-
-    // Check if queue has more challengers
-    if (gameQueue.length > 0) {
-        currentChallenger = gameQueue.pop();
-        
-        // Small animation effect
-        battleArena.style.opacity = "0";
-        setTimeout(() => {
-            renderRound();
-            battleArena.style.opacity = "1";
-        }, 200);
-    } else {
-        endGame();
-    }
-  }
-
-  function endGame() {
-    battleArena.style.display = "none";
-    gameStatus.style.display = "none";
-    winnerDisplay.style.display = "flex";
-    
-    winnerName.textContent = currentChampion.culprit.toUpperCase();
-    // YENİ: Kazananın fotoğrafını ayarla
-    const photoUrl = culpritPhotos[currentChampion.culprit] || ""; // Fotoğraf yoksa boş bırak
-    winnerPhoto.src = photoUrl;
-
-    winnerDesc.textContent = `"${currentChampion.text}"`;
-  }
-
-  // Event Listeners for Game
-  cardA.addEventListener("click", () => handleSelection('A'));
-  cardB.addEventListener("click", () => handleSelection('B'));
-  restartBtn.addEventListener("click", initGame);
-
-  // Start the game on load
-  initGame();
-
-
   // --- Time & Weather ---
   function updateTime() {
     const now = new Date();
-    
     cities.forEach(city => {
-      // 1. Saat Güncellemesi
       const timeStr = now.toLocaleTimeString("en-GB", { timeZone: city.timezone, hour: "2-digit", minute: "2-digit" });
       city.element.querySelector(".time").textContent = timeStr;
-
-      // 2. Yılbaşı Geri Sayımı (YENİ)
-      // O şehirdeki şu anki zamanı bul
-      const cityTimeStr = now.toLocaleString("en-US", { timeZone: city.timezone });
-      const cityDate = new Date(cityTimeStr);
-
-      // Bir sonraki yılın 1 Ocağını hedefle
-      const targetYear = cityDate.getFullYear() + 1;
-      const targetDate = new Date(cityTimeStr); 
-      targetDate.setFullYear(targetYear);
-      targetDate.setMonth(0); // Ocak (0 indexli)
-      targetDate.setDate(1);
-      targetDate.setHours(0, 0, 0, 0);
-
-      const diff = targetDate - cityDate; // Milisaniye farkı
-
-      if (diff <= 0) {
-          city.element.querySelector(".countdown").innerHTML = "🎉 MUTLU YILLAR! 🎆";
-      } else {
-          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-          city.element.querySelector(".countdown").innerHTML = `⏳ ${days}g ${hours}s ${minutes}dk ${seconds}sn`;
-      }
     });
   }
 
@@ -840,3 +435,6 @@
 </script>
 </body>
 </html>
+
+
+
