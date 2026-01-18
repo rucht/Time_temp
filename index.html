@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
@@ -12,10 +12,11 @@
     --bg-gradient: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
     --card-bg: rgba(255, 255, 255, 0.15);
     --text-color: #fff;
-    --currency-num-color: #003366; /* Dark Blue for visibility */
+    --currency-num-color: #003366; 
     --card-border: rgba(255, 255, 255, 0.3);
-    --food-btn-bg: #ffeb3b;
-    --food-btn-text: #333;
+    --btn-bg: #ffeb3b;
+    --btn-text: #333;
+    --input-bg: rgba(255, 255, 255, 0.8);
   }
 
   body {
@@ -28,6 +29,7 @@
     padding: 20px;
     color: var(--text-color);
     transition: background 0.5s ease;
+    padding-top: 80px; /* Space for top elements */
   }
 
   /* --- DARK MODE STYLES --- */
@@ -35,10 +37,11 @@
     --bg-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
     --card-bg: rgba(0, 0, 0, 0.5);
     --text-color: #e0e0e0;
-    --currency-num-color: #4db8ff; /* Light Blue for Dark Mode */
+    --currency-num-color: #4db8ff; 
     --card-border: rgba(255, 255, 255, 0.1);
-    --food-btn-bg: #4db8ff;
-    --food-btn-text: #000;
+    --btn-bg: #4db8ff;
+    --btn-text: #000;
+    --input-bg: rgba(30, 30, 30, 0.8);
   }
 
   /* --- TOP RIGHT TOGGLE BUTTON --- */
@@ -62,24 +65,23 @@
   }
   .theme-toggle:hover { background: rgba(255, 255, 255, 0.4); transform: scale(1.1); }
 
-  /* --- CURRENCY TICKER --- */
+  /* --- CURRENCY TICKER (Moved & Resized) --- */
   #currency-ticker {
-    width: 100%;
-    max-width: 1100px;
+    position: absolute;
+    top: 25px;
+    left: 20px;
     background: var(--card-bg);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(5px);
     border: 1px solid var(--card-border);
-    border-radius: 15px;
-    padding: 10px 20px;
-    margin-bottom: 30px;
-    margin-top: 40px; /* Space for toggle button */
+    border-radius: 20px;
+    padding: 8px 15px;
     display: flex;
-    justify-content: center;
-    gap: 30px;
-    font-weight: 600;
-    font-size: 1.1rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    gap: 15px;
+    font-weight: 500;
+    font-size: 0.85rem; /* Smaller font */
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     transition: background 0.3s;
+    z-index: 99;
   }
   .currency-item span { 
     color: var(--currency-num-color); 
@@ -87,7 +89,7 @@
     font-weight: 700;
   }
 
-  h1 { font-size: 2rem; margin-bottom: 25px; text-shadow: 0 2px 6px rgba(0,0,0,0.3); text-align: center; }
+  h1 { font-size: 2rem; margin-bottom: 35px; text-shadow: 0 2px 6px rgba(0,0,0,0.3); text-align: center; }
   
   /* --- CITIES GRID --- */
   #cities {
@@ -138,11 +140,16 @@
   .action-btn:hover { background: rgba(255,255,255,0.4); }
   .file-input { display: none; }
 
-  /* --- FOOD SECTION STYLES --- */
-  #food-section {
+  /* --- SHARED SECTION STYLES --- */
+  .content-section {
     width: 100%;
     max-width: 1100px;
-    margin-top: 20px;
+    margin-top: 30px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 20px;
+    backdrop-filter: blur(5px);
   }
   .section-header {
     display: flex;
@@ -151,10 +158,33 @@
     margin-bottom: 20px;
     padding-bottom: 10px;
     border-bottom: 1px solid var(--card-border);
+    flex-wrap: wrap;
+    gap: 10px;
   }
-  .upload-food-btn {
-    background: var(--food-btn-bg);
-    color: var(--food-btn-text);
+  
+  /* Inputs for Sharing */
+  .share-controls {
+    display: flex;
+    gap: 10px;
+    flex-grow: 1;
+    justify-content: flex-end;
+  }
+  .share-input {
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: none;
+    font-family: inherit;
+    background: var(--input-bg);
+    color: #333;
+    outline: none;
+    font-size: 0.9rem;
+    width: 200px;
+  }
+  body.dark-mode .share-input { color: #fff; }
+
+  .upload-btn {
+    background: var(--btn-bg);
+    color: var(--btn-text);
     border: none;
     padding: 8px 16px;
     border-radius: 20px;
@@ -165,31 +195,57 @@
     gap: 8px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     transition: transform 0.2s;
+    white-space: nowrap;
   }
-  .upload-food-btn:hover { transform: scale(1.05); }
+  .upload-btn:hover { transform: scale(1.05); }
 
-  #food-gallery {
+  /* Galleries (Food, Drinks, Links) */
+  .gallery-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 15px;
   }
-  .food-item {
+  .gallery-item {
     position: relative;
     border-radius: 15px;
     overflow: hidden;
     height: 150px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    background: rgba(0,0,0,0.1);
+    background: rgba(0,0,0,0.2);
+    transition: transform 0.2s;
   }
-  .food-item img {
+  .gallery-item:hover { transform: translateY(-5px); }
+  
+  .gallery-item img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.3s;
   }
-  .food-item:hover img { transform: scale(1.1); }
+
+  /* Link Specific Styles */
+  .link-item {
+    text-decoration: none;
+    color: white;
+    display: block;
+    height: 100%;
+    position: relative;
+  }
+  .link-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    padding: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-shadow: 0 1px 3px black;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   
-  .delete-food {
+  .delete-btn {
     position: absolute;
     top: 5px;
     right: 5px;
@@ -206,34 +262,62 @@
     font-size: 0.8rem;
     opacity: 0;
     transition: opacity 0.2s;
+    z-index: 10;
   }
-  .food-item:hover .delete-food { opacity: 1; }
+  .gallery-item:hover .delete-btn { opacity: 1; }
 
 </style>
 </head>
 <body>
-
-<button id="theme-toggle" class="theme-toggle" title="Toggle Dark Mode">🌙</button>
 
 <div id="currency-ticker">
     <div class="currency-item" id="eur-usd">€1 = <span>...</span> USD</div>
     <div class="currency-item" id="eur-try">€1 = <span>...</span> TL</div>
 </div>
 
+<button id="theme-toggle" class="theme-toggle" title="Toggle Dark Mode">🌙</button>
+
 <h1>🌍 Fortunately</h1>
 
 <div id="cities"></div>
 
-<div id="food-section">
+<div class="content-section" id="share-section">
+    <div class="section-header">
+        <h2>🔗 Shared Links</h2>
+        <div class="share-controls">
+            <input type="text" id="link-title" class="share-input" placeholder="Title (e.g. Funny Cat)">
+            <input type="text" id="link-url" class="share-input" placeholder="Paste Link Here...">
+            <button id="add-link-btn" class="upload-btn">➕ Add</button>
+        </div>
+    </div>
+    <div id="link-gallery" class="gallery-grid">
+        <p style="grid-column: 1/-1; text-align: center; opacity: 0.7;">No shared links yet.</p>
+    </div>
+</div>
+
+<div class="content-section" id="food-section">
     <div class="section-header">
         <h2>📸 Local Tastes</h2>
-        <label class="upload-food-btn">
+        <label class="upload-btn">
             📷 Upload Food
             <input type="file" id="food-input" class="file-input" accept="image/*">
         </label>
     </div>
-    <div id="food-gallery">
-        <p style="grid-column: 1/-1; text-align: center; opacity: 0.7;">No food photos yet. Upload one!</p>
+    <div id="food-gallery" class="gallery-grid">
+        <p style="grid-column: 1/-1; text-align: center; opacity: 0.7;">No food photos yet.</p>
+    </div>
+</div>
+
+<div class="content-section" id="drink-section">
+    <div class="section-header">
+        <h2>🍹 Drinks</h2>
+        <label class="upload-btn" style="background-color: #ff9800; color: white;">
+            🍷 Upload Drink
+            <input type="file" id="drink-input" class="file-input" accept="image/*">
+        </label>
+    </div>
+    <div id="drink-gallery" class="gallery-grid">
+        <p style="grid-column: 1/-1; text-align: center; opacity: 0.7;">No drink photos yet.</p>
     </div>
 </div>
 
@@ -258,7 +342,6 @@
   // --- Dark Mode Logic ---
   const toggleBtn = document.getElementById("theme-toggle");
   
-  // Check local storage for preference
   if (localStorage.getItem("theme") === "dark") {
     document.body.classList.add("dark-mode");
     toggleBtn.textContent = "☀️";
@@ -292,17 +375,14 @@
 
   const container = document.getElementById("cities");
   const foodGallery = document.getElementById("food-gallery");
+  const drinkGallery = document.getElementById("drink-gallery");
+  const linkGallery = document.getElementById("link-gallery");
 
-  // --- Currency Logic (Base EUR) ---
+  // --- Currency Logic ---
   async function updateCurrency() {
     try {
-        // Fetch rates with Base EUR
         const res = await fetch("https://api.frankfurter.app/latest?from=EUR&to=USD,TRY");
         const data = await res.json();
-        
-        // data.rates.USD is how many USD = 1 EUR
-        // data.rates.TRY is how many TRY = 1 EUR
-        
         document.querySelector("#eur-usd span").textContent = data.rates.USD.toFixed(2);
         document.querySelector("#eur-try span").textContent = data.rates.TRY.toFixed(2);
     } catch (e) {
@@ -352,6 +432,7 @@
         <div class="actions">
             <label class="action-btn" title="Upload Photo">
                 📷 <input type="file" class="file-input" accept="image/*">
+            </label>
         </div>
       </div>
     `;
@@ -371,38 +452,109 @@
     });
   });
 
-  // --- Food Section ---
-  document.getElementById("food-input").addEventListener("change", (e) => {
-    if (e.target.files[0]) {
-        resizeImage(e.target.files[0], (dataUrl) => {
-            push(ref(db, "foods"), { url: dataUrl, timestamp: Date.now() });
-        });
-    }
+  // --- SHARED LINKS LOGIC ---
+  function getLinkPreviewImage(url) {
+      // 1. YouTube
+      const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/)([\w-]{11}))/);
+      if (ytMatch && ytMatch[1]) {
+          return `https://img.youtube.com/vi/${ytMatch[1]}/0.jpg`;
+      }
+      // 2. Generic Placeholder (used because we can't scrape websites client-side)
+      return "https://cdn-icons-png.flaticon.com/512/888/888856.png"; 
+  }
+
+  document.getElementById("add-link-btn").addEventListener("click", () => {
+      const urlInput = document.getElementById("link-url");
+      const titleInput = document.getElementById("link-title");
+      const url = urlInput.value.trim();
+      const title = titleInput.value.trim() || "Shared Link";
+
+      if (url) {
+          // Normalize URL
+          let finalUrl = url;
+          if (!url.startsWith("http")) finalUrl = "https://" + url;
+
+          const previewImg = getLinkPreviewImage(finalUrl);
+          
+          push(ref(db, "links"), { 
+              url: finalUrl, 
+              title: title, 
+              img: previewImg,
+              timestamp: Date.now() 
+          });
+          
+          urlInput.value = "";
+          titleInput.value = "";
+      } else {
+          alert("Please paste a valid URL!");
+      }
   });
 
-  onValue(ref(db, "foods"), snap => {
-    foodGallery.innerHTML = "";
+  onValue(ref(db, "links"), snap => {
+    linkGallery.innerHTML = "";
     const data = snap.val();
-    
     if (!data) {
-        foodGallery.innerHTML = '<p style="grid-column: 1/-1; text-align: center; opacity: 0.7;">No food photos yet. Upload one!</p>';
+        linkGallery.innerHTML = '<p style="grid-column: 1/-1; text-align: center; opacity: 0.7;">No shared links yet.</p>';
         return;
     }
-
-    Object.keys(data).forEach(key => {
+    Object.keys(data).reverse().forEach(key => { // Reverse to show newest first
         const item = data[key];
         const div = document.createElement("div");
-        div.className = "food-item";
+        div.className = "gallery-item";
         div.innerHTML = `
-            <img src="${item.url}" loading="lazy">
-            <button class="delete-food" title="Delete">🗑️</button>
+            <a href="${item.url}" target="_blank" class="link-item">
+                <img src="${item.img}" loading="lazy">
+                <div class="link-overlay">${item.title}</div>
+            </a>
+            <button class="delete-btn" title="Delete">🗑️</button>
         `;
-        div.querySelector(".delete-food").addEventListener("click", () => {
-            if(confirm("Delete this food photo?")) remove(ref(db, "foods/" + key));
+        div.querySelector(".delete-btn").addEventListener("click", () => {
+            if(confirm("Delete this link?")) remove(ref(db, "links/" + key));
         });
-        foodGallery.insertBefore(div, foodGallery.firstChild);
+        linkGallery.appendChild(div);
     });
   });
+
+  // --- GENERIC UPLOAD FUNCTION (Food & Drinks) ---
+  function setupUploadSection(inputId, dbPath, galleryId, emptyMsg) {
+      document.getElementById(inputId).addEventListener("change", (e) => {
+        if (e.target.files[0]) {
+            resizeImage(e.target.files[0], (dataUrl) => {
+                push(ref(db, dbPath), { url: dataUrl, timestamp: Date.now() });
+            });
+        }
+      });
+
+      onValue(ref(db, dbPath), snap => {
+        const gallery = document.getElementById(galleryId);
+        gallery.innerHTML = "";
+        const data = snap.val();
+        
+        if (!data) {
+            gallery.innerHTML = `<p style="grid-column: 1/-1; text-align: center; opacity: 0.7;">${emptyMsg}</p>`;
+            return;
+        }
+
+        Object.keys(data).forEach(key => {
+            const item = data[key];
+            const div = document.createElement("div");
+            div.className = "gallery-item";
+            div.innerHTML = `
+                <img src="${item.url}" loading="lazy">
+                <button class="delete-btn" title="Delete">🗑️</button>
+            `;
+            div.querySelector(".delete-btn").addEventListener("click", () => {
+                if(confirm("Delete this photo?")) remove(ref(db, `${dbPath}/${key}`));
+            });
+            // Insert at top (newest first)
+            gallery.insertBefore(div, gallery.firstChild);
+        });
+      });
+  }
+
+  // Initialize Food & Drink Sections
+  setupUploadSection("food-input", "foods", "food-gallery", "No food photos yet.");
+  setupUploadSection("drink-input", "drinks", "drink-gallery", "No drink photos yet.");
 
   // --- Time & Weather ---
   function updateTime() {
@@ -435,6 +587,3 @@
 </script>
 </body>
 </html>
-
-
-
