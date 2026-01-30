@@ -44,7 +44,7 @@
     --btn-bg: #4db8ff;
     --btn-text: #000;
     --input-bg: rgba(30, 30, 30, 0.8);
-    --mine-bg: rgba(255, 255, 255, 0.15);
+    --mine-bg: rgba(255, 255, 255, 0.15); /* Dark mode fix applied */
     --mine-revealed: rgba(255, 255, 255, 0.1);
     --accent-color: #4db8ff;
   }
@@ -86,7 +86,7 @@
     border-radius: 50%; display: flex; align-items: center; justify-content: center;
   }
 
-  /* --- SIDEBAR WIDGETS (Calendar Left, Films Right) --- */
+  /* --- SIDEBAR WIDGETS --- */
   .sidebar-widget {
     position: fixed; top: 100px; width: 260px;
     background: var(--card-bg); backdrop-filter: blur(10px);
@@ -154,13 +154,19 @@
     body { padding-top: 110px; }
   }
   
-  /* --- OTHER STYLES (Retained) --- */
+  /* --- CITY & GALLERY STYLES --- */
   h1 { font-size: 2rem; margin-bottom: 35px; text-shadow: 0 2px 6px rgba(0,0,0,0.3); text-align: center; }
   #cities { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 25px; width: 100%; max-width: 1100px; margin-bottom: 50px; }
   .city { position: relative; border-radius: 20px; overflow: hidden; background: var(--card-bg); backdrop-filter: blur(10px); border: 1px solid var(--card-border); display: flex; flex-direction: column; }
   .city img { width: 100%; height: 180px; object-fit: cover; background: #ddd; }
   .city-info { padding: 20px; text-align: center; background: rgba(0,0,0,0.1); flex-grow: 1; }
   .city h3 { margin-bottom: 6px; }
+  
+  /* Weather & Time Specific Styles */
+  .city .time { font-size: 1.1rem; font-weight: bold; margin-bottom: 5px; }
+  .city .temp { font-size: 1.2rem; font-weight: 600; margin-bottom: 2px; }
+  .city .condition { font-size: 0.9rem; margin-top: 4px; font-weight: 500; opacity: 0.9; }
+
   .actions { margin-top: 15px; display: flex; justify-content: center; gap: 15px; }
   .action-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: var(--text-color); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
   .file-input { display: none; }
@@ -535,122 +541,7 @@
   });
   renderCalendar();
 
-  // --- Galleries (Food, Drink, Links) with Reactions ---
-  
-  // Helper for Uploads
-  function setupUpload(inputId, dbPath, galleryId, emoji) {
-      document.getElementById(inputId).addEventListener("change", (e) => {
-        if (e.target.files[0]) {
-            const reader = new FileReader();
-            reader.onload = (evt) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement("canvas");
-                    const ctx = canvas.getContext("2d");
-                    const maxWidth = 800; let width = img.width; let height = img.height;
-                    if (width > maxWidth) { height = height * (maxWidth / width); width = maxWidth; }
-                    canvas.width = width; canvas.height = height; ctx.drawImage(img, 0, 0, width, height);
-                    push(ref(db, dbPath), { url: canvas.toDataURL("image/jpeg", 0.7), reactions: 0 });
-                };
-                img.src = evt.target.result;
-            };
-            reader.readAsDataURL(e.target.files[0]);
-        }
-      });
-
-      onValue(ref(db, dbPath), snap => {
-        const gallery = document.getElementById(galleryId); gallery.innerHTML = "";
-        const data = snap.val();
-        if(data) Object.keys(data).reverse().forEach(key => {
-            const item = data[key];
-            const div = document.createElement("div"); div.className = "gallery-item";
-            
-            // Image with click for Lightbox
-            const imgEl = document.createElement("img");
-            imgEl.src = item.url;
-            imgEl.addEventListener("click", () => openLightbox(item.url));
-            
-            // Reaction Button
-            const countStr = formatReactionCount(item.reactions);
-            const reactBtn = document.createElement("button");
-            reactBtn.className = "reaction-btn";
-            reactBtn.innerHTML = `${emoji} ${countStr}`;
-            reactBtn.addEventListener("click", (e) => {
-                e.stopPropagation(); // Don't open lightbox
-                handleReaction(`${dbPath}/${key}/reactions`);
-            });
-
-            // Delete Button
-            const delBtn = document.createElement("button");
-            delBtn.className = "delete-btn"; delBtn.innerHTML = "🗑️";
-            delBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                if(confirm("Delete?")) remove(ref(db, `${dbPath}/${key}`));
-            });
-
-            div.appendChild(imgEl);
-            div.appendChild(reactBtn);
-            div.appendChild(delBtn);
-            gallery.appendChild(div);
-        });
-      });
-  }
-
-  setupUpload("food-input", "foods", "food-gallery", "😋");
-  setupUpload("drink-input", "drinks", "drink-gallery", "😋");
-
-  // Shared Links Logic
-  document.getElementById("add-link-btn").addEventListener("click", async () => {
-      const urlIn = document.getElementById("link-url"), titleIn = document.getElementById("link-title");
-      if (urlIn.value.trim()) {
-          const btn = document.getElementById("add-link-btn"); btn.textContent = "⏳";
-          let finalUrl = urlIn.value.trim().startsWith("http") ? urlIn.value.trim() : "https://" + urlIn.value.trim();
-          let img = "https://cdn-icons-png.flaticon.com/512/1006/1006771.png";
-          try {
-             const res = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(finalUrl)}`);
-             const d = await res.json();
-             if(d.status === 'success' && d.data.image) img = d.data.image.url;
-          } catch {}
-          
-          push(ref(db, "links"), { url: finalUrl, title: titleIn.value.trim() || new URL(finalUrl).hostname, img: img, timestamp: Date.now(), reactions: 0 });
-          urlIn.value = ""; titleIn.value = ""; btn.textContent = "➕ Add";
-      }
-  });
-
-  onValue(ref(db, "links"), snap => {
-    const gallery = document.getElementById("link-gallery"); gallery.innerHTML = "";
-    const data = snap.val();
-    if (!data) return;
-    Object.keys(data).reverse().forEach(key => { 
-        const item = data[key]; 
-        const div = document.createElement("div"); div.className = "gallery-item";
-        
-        const countStr = formatReactionCount(item.reactions);
-
-        div.innerHTML = `
-            <a href="${item.url}" target="_blank" class="link-item">
-                <img src="${item.img}">
-                <div class="link-overlay">${item.title}</div>
-            </a>
-            <button class="reaction-btn" id="react-${key}">😂 ${countStr}</button>
-            <button class="delete-btn" id="del-${key}">🗑️</button>
-        `;
-        
-        div.querySelector(`#react-${key}`).addEventListener("click", (e) => {
-            e.preventDefault();
-            handleReaction(`links/${key}/reactions`);
-        });
-
-        div.querySelector(`#del-${key}`).addEventListener("click", (e) => {
-            e.preventDefault();
-            if(confirm("Delete?")) remove(ref(db, "links/" + key));
-        });
-        
-        gallery.appendChild(div);
-    });
-  });
-
-  // --- Minesweeper & Others (Retained) ---
+  // --- Minesweeper (Retained) ---
   const msTriggerBtn = document.getElementById("ms-trigger-btn");
   const msModal = document.getElementById("ms-modal");
   const msCloseBtn = document.getElementById("ms-close-btn");
@@ -732,7 +623,7 @@
   function checkWin() { let safe = 0; msBoard.forEach(c => { if(!c.isMine && !c.revealed) safe++; }); if(safe === 0) gameOver(true); }
   msRestartBtn.addEventListener("click", initMinesweeper); initMinesweeper();
 
-  // Cities Logic (Standard)
+  // --- CITIES & WEATHER LOGIC (RESTORED) ---
   const cities = [
     { name: "Istanbul", timezone: "Europe/Istanbul", lat: 41.0082, lon: 28.9784, img: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
     { name: "Ankara", timezone: "Europe/Istanbul", lat: 39.9334, lon: 32.8597, img: "https://pbs.twimg.com/media/G3ALijdXcAA4cI4?format=jpg&name=900x900" },
@@ -743,11 +634,27 @@
     { name: "San Diego", timezone: "America/Los_Angeles", lat: 32.7157, lon: -117.1611, img: "https://specials-images.forbesimg.com/dam/imageserve/1120536785/960x0.jpg?fit=scale" }
   ];
 
+  const weatherDescriptions = { 0: "☀️ Clear", 1: "🌤 Mainly clear", 2: "⛅ Partly cloudy", 3: "☁️ Overcast", 45: "🌫 Fog", 51: "🌦 Drizzle", 61: "🌦 Rain", 63: "🌧 Rain", 71: "🌨 Snow", 80: "🌧 Showers", 95: "⛈ Thunderstorm" };
+
   const container = document.getElementById("cities");
   cities.forEach(city => {
     const div = document.createElement("div"); div.className = "city";
-    div.innerHTML = `<img src="${city.img}"><div class="city-info"><h3>${city.name}</h3><div class="actions"><label class="action-btn">📷 <input type="file" class="file-input" accept="image/*"></label></div></div>`;
+    // RESTORED: Added .time, .temp, .condition back into the HTML structure
+    div.innerHTML = `
+        <img src="${city.img}">
+        <div class="city-info">
+            <h3>${city.name}</h3>
+            <p class="time">--:--</p>
+            <p class="temp">-- °C</p>
+            <p class="condition">--</p>
+            <div class="actions">
+                <label class="action-btn">📷 <input type="file" class="file-input" accept="image/*"></label>
+            </div>
+        </div>
+    `;
     container.appendChild(div);
+    city.element = div; // Store reference for updates
+
     div.querySelector(".file-input").addEventListener("change", (e) => { if(e.target.files[0]) {
         const reader = new FileReader(); reader.onload = (evt) => {
             const img = new Image(); img.onload = () => {
@@ -758,6 +665,130 @@
         }; reader.readAsDataURL(e.target.files[0]);
     }});
     onValue(ref(db, "cities/" + city.name + "/img"), snap => { if(snap.val()) div.querySelector("img").src = snap.val(); });
+  });
+
+  // RESTORED: Weather Update Function
+  async function updateWeather() {
+    for (const city of cities) {
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current_weather=true`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if(city.element) {
+            city.element.querySelector(".temp").textContent = `${data.current_weather.temperature} °C`;
+            city.element.querySelector(".condition").textContent = weatherDescriptions[data.current_weather.weathercode] || "Unknown";
+        }
+      } catch (e) { console.error(e); }
+    }
+  }
+
+  // RESTORED: Time Update Function
+  function updateTime() {
+    const now = new Date();
+    cities.forEach(city => {
+      if(city.element) {
+          city.element.querySelector(".time").textContent = now.toLocaleTimeString("en-GB", { timeZone: city.timezone, hour: "2-digit", minute: "2-digit" });
+      }
+    });
+  }
+
+  // --- Helper for Uploads & Reactions (Food/Drink/Links) ---
+  function setupUpload(inputId, dbPath, galleryId, emoji) {
+      document.getElementById(inputId).addEventListener("change", (e) => {
+        if (e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    const ctx = canvas.getContext("2d");
+                    const maxWidth = 800; let width = img.width; let height = img.height;
+                    if (width > maxWidth) { height = height * (maxWidth / width); width = maxWidth; }
+                    canvas.width = width; canvas.height = height; ctx.drawImage(img, 0, 0, width, height);
+                    push(ref(db, dbPath), { url: canvas.toDataURL("image/jpeg", 0.7), reactions: 0 });
+                };
+                img.src = evt.target.result;
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+      });
+
+      onValue(ref(db, dbPath), snap => {
+        const gallery = document.getElementById(galleryId); gallery.innerHTML = "";
+        const data = snap.val();
+        if(data) Object.keys(data).reverse().forEach(key => {
+            const item = data[key];
+            const div = document.createElement("div"); div.className = "gallery-item";
+            
+            const imgEl = document.createElement("img");
+            imgEl.src = item.url;
+            imgEl.addEventListener("click", () => openLightbox(item.url));
+            
+            const countStr = formatReactionCount(item.reactions);
+            const reactBtn = document.createElement("button");
+            reactBtn.className = "reaction-btn";
+            reactBtn.innerHTML = `${emoji} ${countStr}`;
+            reactBtn.addEventListener("click", (e) => {
+                e.stopPropagation(); 
+                handleReaction(`${dbPath}/${key}/reactions`);
+            });
+
+            const delBtn = document.createElement("button");
+            delBtn.className = "delete-btn"; delBtn.innerHTML = "🗑️";
+            delBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                if(confirm("Delete?")) remove(ref(db, `${dbPath}/${key}`));
+            });
+
+            div.appendChild(imgEl);
+            div.appendChild(reactBtn);
+            div.appendChild(delBtn);
+            gallery.appendChild(div);
+        });
+      });
+  }
+
+  setupUpload("food-input", "foods", "food-gallery", "😋");
+  setupUpload("drink-input", "drinks", "drink-gallery", "😋");
+
+  // Shared Links Logic
+  document.getElementById("add-link-btn").addEventListener("click", async () => {
+      const urlIn = document.getElementById("link-url"), titleIn = document.getElementById("link-title");
+      if (urlIn.value.trim()) {
+          const btn = document.getElementById("add-link-btn"); btn.textContent = "⏳";
+          let finalUrl = urlIn.value.trim().startsWith("http") ? urlIn.value.trim() : "https://" + urlIn.value.trim();
+          let img = "https://cdn-icons-png.flaticon.com/512/1006/1006771.png";
+          try {
+             const res = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(finalUrl)}`);
+             const d = await res.json();
+             if(d.status === 'success' && d.data.image) img = d.data.image.url;
+          } catch {}
+          
+          push(ref(db, "links"), { url: finalUrl, title: titleIn.value.trim() || new URL(finalUrl).hostname, img: img, timestamp: Date.now(), reactions: 0 });
+          urlIn.value = ""; titleIn.value = ""; btn.textContent = "➕ Add";
+      }
+  });
+
+  onValue(ref(db, "links"), snap => {
+    const gallery = document.getElementById("link-gallery"); gallery.innerHTML = "";
+    const data = snap.val();
+    if (!data) return;
+    Object.keys(data).reverse().forEach(key => { 
+        const item = data[key]; 
+        const div = document.createElement("div"); div.className = "gallery-item";
+        const countStr = formatReactionCount(item.reactions);
+        div.innerHTML = `
+            <a href="${item.url}" target="_blank" class="link-item">
+                <img src="${item.img}">
+                <div class="link-overlay">${item.title}</div>
+            </a>
+            <button class="reaction-btn" id="react-${key}">😂 ${countStr}</button>
+            <button class="delete-btn" id="del-${key}">🗑️</button>
+        `;
+        div.querySelector(`#react-${key}`).addEventListener("click", (e) => { e.preventDefault(); handleReaction(`links/${key}/reactions`); });
+        div.querySelector(`#del-${key}`).addEventListener("click", (e) => { e.preventDefault(); if(confirm("Delete?")) remove(ref(db, "links/" + key)); });
+        gallery.appendChild(div);
+    });
   });
 
   async function updateCurrency() {
@@ -772,7 +803,11 @@
         if (goldData.price) document.querySelector("#gram-gold span").textContent = ((goldData.price / 31.1035) * usdToTry).toFixed(0);
     } catch {}
   }
-  updateCurrency(); setInterval(updateCurrency, 3600000);
+  
+  // Initialize Intervals
+  updateTime(); setInterval(updateTime, 1000);
+  updateWeather(); setInterval(updateWeather, 600000); // 10 mins
+  updateCurrency(); setInterval(updateCurrency, 3600000); // 1 hour
 
 </script>
 </body>
