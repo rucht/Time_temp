@@ -44,7 +44,7 @@
     --btn-bg: #4db8ff;
     --btn-text: #000;
     --input-bg: rgba(30, 30, 30, 0.8);
-    --mine-bg: rgba(255, 255, 255, 0.15); /* Dark mode fix applied */
+    --mine-bg: rgba(255, 255, 255, 0.15); 
     --mine-revealed: rgba(255, 255, 255, 0.1);
     --accent-color: #4db8ff;
   }
@@ -132,13 +132,22 @@
     color: white; border: 1px solid rgba(255,255,255,0.3);
     border-radius: 20px; padding: 4px 10px;
     font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 4px;
-    transition: transform 0.1s, background 0.2s;
+    transition: transform 0.1s, background 0.2s, color 0.2s;
     z-index: 20;
   }
   .reaction-btn:hover { background: rgba(0,0,0,0.8); transform: scale(1.05); }
   .reaction-btn:active { transform: scale(0.95); }
+  
+  /* ACTIVE REACTION STATE (Liked) */
+  .reaction-btn.active {
+    background-color: var(--accent-color);
+    color: #333;
+    border-color: #fff;
+    font-weight: bold;
+    box-shadow: 0 0 10px var(--accent-color);
+  }
 
-  /* --- FLOATING ACTION BUTTONS (Right Bottom) --- */
+  /* --- FLOATING ACTION BUTTONS --- */
   .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; z-index: 200; }
   .fab-btn { background: var(--btn-bg); color: var(--btn-text); padding: 12px 20px; border-radius: 30px; font-weight: bold; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; transition: transform 0.2s; display: flex; align-items: center; gap: 8px; }
   .fab-btn:hover { transform: scale(1.05); }
@@ -265,6 +274,8 @@
     <button id="mobile-film-btn" class="fab-btn">🎬 Filmler</button>
 </div>
 
+<button id="reset-likes-btn" style="background:red; color:white; border:none; padding:10px 20px; border-radius:10px; margin-top:50px; cursor:pointer;">⚠️ Reset All Likes</button>
+
 <div id="ms-modal">
     <div class="ms-container">
         <button class="close-modal-btn" style="top:-15px; right:-15px;" id="ms-close-btn">×</button>
@@ -322,7 +333,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getDatabase, ref, onValue, set, push, remove, runTransaction } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+  import { getDatabase, ref, onValue, set, push, remove, runTransaction, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCUTBQ5oIgF1GEU8rGj9Mxqz7a2g1Ecswk",
@@ -337,6 +348,29 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
+
+  // --- RESET BUTTON LOGIC ---
+  document.getElementById("reset-likes-btn").addEventListener("click", async () => {
+    if(confirm("Are you sure? This will set all likes to 0.")) {
+        const resetPath = (path) => {
+            get(ref(db, path)).then(snap => {
+                const data = snap.val();
+                if(data) {
+                    Object.keys(data).forEach(key => {
+                        set(ref(db, `${path}/${key}/reactions`), 0);
+                        localStorage.removeItem(`liked_${key}`);
+                    });
+                }
+            });
+        };
+        resetPath("foods");
+        resetPath("drinks");
+        resetPath("links");
+        alert("Reset complete! You can remove this button from the code now.");
+        location.reload();
+    }
+  });
+
 
   // --- Theme ---
   const toggleBtn = document.getElementById("theme-toggle");
@@ -365,11 +399,24 @@
       if(e.target === lightbox) lightbox.classList.remove("active");
   });
 
-  // --- Reaction Logic ---
-  function handleReaction(path, maxDisplay = 8) {
+  // --- Reaction Logic (Toggle: Like/Unlike per user) ---
+  function toggleReaction(path, itemId) {
+      const storageKey = "liked_" + itemId;
+      const isLiked = localStorage.getItem(storageKey);
+
       const reactionRef = ref(db, path);
       runTransaction(reactionRef, (currentVal) => {
-          return (currentVal || 0) + 1;
+          if (isLiked) {
+              // Unlike
+              const newVal = (currentVal || 0) - 1;
+              return newVal < 0 ? 0 : newVal;
+          } else {
+              // Like
+              return (currentVal || 0) + 1;
+          }
+      }).then(() => {
+          if (isLiked) localStorage.removeItem(storageKey);
+          else localStorage.setItem(storageKey, "true");
       });
   }
 
@@ -429,11 +476,7 @@
       }
       
       const films = Object.keys(data).map(k => ({ id: k, ...data[k] })).sort((a,b) => b.timestamp - a.timestamp);
-      
-      // Sidebar (Max 5)
       films.slice(0, 5).forEach(f => sidebarList.appendChild(createFilmElement(f)));
-      
-      // Full List
       films.forEach(f => fullList.appendChild(createFilmElement(f, true)));
   });
 
@@ -456,16 +499,11 @@
       return div;
   }
 
-  // Film Modal Toggles
-  const filmWidget = document.getElementById("film-widget");
+  // Film Modal
   const filmModal = document.getElementById("film-modal");
   document.getElementById("expand-films-btn").addEventListener("click", () => filmModal.classList.add("active"));
   document.getElementById("close-film-modal").addEventListener("click", () => filmModal.classList.remove("active"));
-  document.getElementById("mobile-film-btn").addEventListener("click", () => {
-     // On mobile, button opens the Full Modal directly
-     filmModal.classList.add("active");
-  });
-
+  document.getElementById("mobile-film-btn").addEventListener("click", () => filmModal.classList.add("active"));
 
   // --- Calendar Logic ---
   const calGrid = document.getElementById("cal-grid");
@@ -529,7 +567,6 @@
   document.getElementById("cal-prev").addEventListener("click", () => { currentDate.setMonth(currentDate.getMonth()-1); renderCalendar(); });
   document.getElementById("cal-next").addEventListener("click", () => { currentDate.setMonth(currentDate.getMonth()+1); renderCalendar(); });
   
-  // Mobile Calendar Toggle
   const calendarWidget = document.getElementById("calendar-widget");
   document.getElementById("mobile-cal-btn").addEventListener("click", () => {
       if(calendarWidget.style.display === "flex") {
@@ -541,7 +578,7 @@
   });
   renderCalendar();
 
-  // --- Minesweeper (Retained) ---
+  // --- Minesweeper ---
   const msTriggerBtn = document.getElementById("ms-trigger-btn");
   const msModal = document.getElementById("ms-modal");
   const msCloseBtn = document.getElementById("ms-close-btn");
@@ -559,9 +596,8 @@
   
   onValue(ref(db, "minesweeper/highscore"), snap => {
     const val = snap.val();
-    const scoreText = val ? val : "--";
-    msTriggerBtn.textContent = `💣 Oyna (Rekor: ${scoreText}s)`;
-    msBestScoreDisplay.textContent = scoreText;
+    msTriggerBtn.textContent = `💣 Oyna (Rekor: ${val ? val : "--"}s)`;
+    msBestScoreDisplay.textContent = val ? val : "--";
   });
 
   function initMinesweeper() {
@@ -590,7 +626,8 @@
   function handleClick(idx) {
       if(msGameOver || msBoard[idx].flagged || msBoard[idx].revealed) return;
       if(!msStarted) { msStarted = true; msTimerInterval = setInterval(() => { msTime++; msTimerEl.textContent = msTime; }, 1000); }
-      if(msBoard[idx].isMine) { gameOver(false); } else { reveal(idx); checkWin(); }
+      if(msBoard[idx].isMine) { msGameOver = true; clearInterval(msTimerInterval); msBoard.forEach((c, i) => { if(c.isMine) { msGrid.children[i].classList.add("bomb"); msGrid.children[i].textContent = "💣"; } }); alert("Game Over!"); } 
+      else { reveal(idx); checkWin(); }
   }
   
   function handleRightClick(idx) {
@@ -614,16 +651,14 @@
       }
   }
   
-  function gameOver(win) {
+  function checkWin() { let safe = 0; msBoard.forEach(c => { if(!c.isMine && !c.revealed) safe++; }); if(safe === 0) {
       msGameOver = true; clearInterval(msTimerInterval);
-      if(!win) { msBoard.forEach((c, i) => { if(c.isMine) { msGrid.children[i].classList.add("bomb"); msGrid.children[i].textContent = "💣"; } }); alert("Game Over!"); } 
-      else { const currentBest = parseInt(msBestScoreDisplay.textContent) || 9999; if(msTime < currentBest) { set(ref(db, "minesweeper/highscore"), msTime); alert(`New High Score: ${msTime}s!`); } else { alert("You Won!"); } }
-  }
-  
-  function checkWin() { let safe = 0; msBoard.forEach(c => { if(!c.isMine && !c.revealed) safe++; }); if(safe === 0) gameOver(true); }
+      const currentBest = parseInt(msBestScoreDisplay.textContent) || 9999;
+      if(msTime < currentBest) { set(ref(db, "minesweeper/highscore"), msTime); alert(`New High Score: ${msTime}s!`); } else { alert("You Won!"); }
+  }}
   msRestartBtn.addEventListener("click", initMinesweeper); initMinesweeper();
 
-  // --- CITIES & WEATHER LOGIC (RESTORED) ---
+  // --- CITIES & WEATHER LOGIC ---
   const cities = [
     { name: "Istanbul", timezone: "Europe/Istanbul", lat: 41.0082, lon: 28.9784, img: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" },
     { name: "Ankara", timezone: "Europe/Istanbul", lat: 39.9334, lon: 32.8597, img: "https://pbs.twimg.com/media/G3ALijdXcAA4cI4?format=jpg&name=900x900" },
@@ -639,7 +674,6 @@
   const container = document.getElementById("cities");
   cities.forEach(city => {
     const div = document.createElement("div"); div.className = "city";
-    // RESTORED: Added .time, .temp, .condition back into the HTML structure
     div.innerHTML = `
         <img src="${city.img}">
         <div class="city-info">
@@ -653,8 +687,7 @@
         </div>
     `;
     container.appendChild(div);
-    city.element = div; // Store reference for updates
-
+    city.element = div;
     div.querySelector(".file-input").addEventListener("change", (e) => { if(e.target.files[0]) {
         const reader = new FileReader(); reader.onload = (evt) => {
             const img = new Image(); img.onload = () => {
@@ -667,32 +700,27 @@
     onValue(ref(db, "cities/" + city.name + "/img"), snap => { if(snap.val()) div.querySelector("img").src = snap.val(); });
   });
 
-  // RESTORED: Weather Update Function
   async function updateWeather() {
     for (const city of cities) {
       try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current_weather=true`;
-        const res = await fetch(url);
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&current_weather=true`);
         const data = await res.json();
         if(city.element) {
             city.element.querySelector(".temp").textContent = `${data.current_weather.temperature} °C`;
             city.element.querySelector(".condition").textContent = weatherDescriptions[data.current_weather.weathercode] || "Unknown";
         }
-      } catch (e) { console.error(e); }
+      } catch (e) {}
     }
   }
 
-  // RESTORED: Time Update Function
   function updateTime() {
     const now = new Date();
     cities.forEach(city => {
-      if(city.element) {
-          city.element.querySelector(".time").textContent = now.toLocaleTimeString("en-GB", { timeZone: city.timezone, hour: "2-digit", minute: "2-digit" });
-      }
+      if(city.element) city.element.querySelector(".time").textContent = now.toLocaleTimeString("en-GB", { timeZone: city.timezone, hour: "2-digit", minute: "2-digit" });
     });
   }
 
-  // --- Helper for Uploads & Reactions (Food/Drink/Links) ---
+  // --- Helper for Uploads & Reactions ---
   function setupUpload(inputId, dbPath, galleryId, emoji) {
       document.getElementById(inputId).addEventListener("change", (e) => {
         if (e.target.files[0]) {
@@ -728,9 +756,13 @@
             const reactBtn = document.createElement("button");
             reactBtn.className = "reaction-btn";
             reactBtn.innerHTML = `${emoji} ${countStr}`;
+            
+            // Check LocalStorage for active state
+            if (localStorage.getItem("liked_" + key)) reactBtn.classList.add("active");
+
             reactBtn.addEventListener("click", (e) => {
                 e.stopPropagation(); 
-                handleReaction(`${dbPath}/${key}/reactions`);
+                toggleReaction(`${dbPath}/${key}/reactions`, key);
             });
 
             const delBtn = document.createElement("button");
@@ -777,15 +809,19 @@
         const item = data[key]; 
         const div = document.createElement("div"); div.className = "gallery-item";
         const countStr = formatReactionCount(item.reactions);
+        
+        // Active Class Check
+        const activeClass = localStorage.getItem("liked_" + key) ? "active" : "";
+
         div.innerHTML = `
             <a href="${item.url}" target="_blank" class="link-item">
                 <img src="${item.img}">
                 <div class="link-overlay">${item.title}</div>
             </a>
-            <button class="reaction-btn" id="react-${key}">😂 ${countStr}</button>
+            <button class="reaction-btn ${activeClass}" id="react-${key}">😂 ${countStr}</button>
             <button class="delete-btn" id="del-${key}">🗑️</button>
         `;
-        div.querySelector(`#react-${key}`).addEventListener("click", (e) => { e.preventDefault(); handleReaction(`links/${key}/reactions`); });
+        div.querySelector(`#react-${key}`).addEventListener("click", (e) => { e.preventDefault(); toggleReaction(`links/${key}/reactions`, key); });
         div.querySelector(`#del-${key}`).addEventListener("click", (e) => { e.preventDefault(); if(confirm("Delete?")) remove(ref(db, "links/" + key)); });
         gallery.appendChild(div);
     });
@@ -804,10 +840,9 @@
     } catch {}
   }
   
-  // Initialize Intervals
   updateTime(); setInterval(updateTime, 1000);
-  updateWeather(); setInterval(updateWeather, 600000); // 10 mins
-  updateCurrency(); setInterval(updateCurrency, 3600000); // 1 hour
+  updateWeather(); setInterval(updateWeather, 600000);
+  updateCurrency(); setInterval(updateCurrency, 3600000);
 
 </script>
 </body>
