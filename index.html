@@ -274,8 +274,6 @@
     <button id="mobile-film-btn" class="fab-btn">🎬 Filmler</button>
 </div>
 
-<button id="reset-likes-btn" style="background:red; color:white; border:none; padding:10px 20px; border-radius:10px; margin-top:50px; cursor:pointer;">⚠️ Reset All Likes</button>
-
 <div id="ms-modal">
     <div class="ms-container">
         <button class="close-modal-btn" style="top:-15px; right:-15px;" id="ms-close-btn">×</button>
@@ -348,28 +346,6 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
-
-  // --- RESET BUTTON LOGIC ---
-  document.getElementById("reset-likes-btn").addEventListener("click", async () => {
-    if(confirm("Are you sure? This will set all likes to 0.")) {
-        const resetPath = (path) => {
-            get(ref(db, path)).then(snap => {
-                const data = snap.val();
-                if(data) {
-                    Object.keys(data).forEach(key => {
-                        set(ref(db, `${path}/${key}/reactions`), 0);
-                        localStorage.removeItem(`liked_${key}`);
-                    });
-                }
-            });
-        };
-        resetPath("foods");
-        resetPath("drinks");
-        resetPath("links");
-        alert("Reset complete! You can remove this button from the code now.");
-        location.reload();
-    }
-  });
 
 
   // --- Theme ---
