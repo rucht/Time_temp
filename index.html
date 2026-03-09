@@ -48,20 +48,32 @@
   /* --- AUTH OVERLAY --- */
   #auth-overlay {
     display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: var(--bg-gradient); z-index: 9999;
+    /* Backround updated to use user's image */
+    background: url('image_0.png') no-repeat center center;
+    background-size: cover;
+    z-index: 9999;
     align-items: center; justify-content: center; flex-direction: column;
+    color: #fff;
+    text-shadow: 0 1px 3px black;
+  }
+  #auth-overlay h1 {
+    font-size: 3rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5); margin-bottom: 50px;
   }
   .user-btn {
-    padding: 15px; border: none; border-radius: 15px; font-weight: bold; font-size: 1.2rem;
-    cursor: pointer; color: #000; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    transition: transform 0.2s;
+    padding: 10px 20px; border: 2px solid rgba(255, 255, 255, 0.5); border-radius: 30px; font-weight: bold; font-size: 1rem;
+    cursor: pointer; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    transition: transform 0.2s, background 0.3s;
+    background: rgba(255, 255, 255, 0.1);
+    text-shadow: 0 1px 3px black;
   }
-  .user-btn:hover { transform: scale(1.05); }
+  .user-btn:hover { transform: scale(1.05); background: rgba(255, 255, 255, 0.3); border-color: #fff; }
   
+  /* Modern uploader badge */
   .uploader-badge {
-    position: absolute; top: 5px; left: 5px; padding: 3px 8px; border-radius: 12px;
-    font-size: 0.7rem; font-weight: bold; color: #000; box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    position: absolute; top: 5px; left: 5px; padding: 3px 6px; border-radius: 8px;
+    font-size: 0.65rem; font-weight: bold; color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.5);
     z-index: 10;
+    text-shadow: 0 1px 2px black;
   }
 
   /* --- COMMON UI ELEMENTS --- */
@@ -198,8 +210,8 @@
 <body>
 
 <div id="auth-overlay">
-    <h1 style="margin-bottom: 30px; font-size: 3rem; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">Kimsin?</h1>
-    <div id="user-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; max-width: 500px; width: 100%; padding: 0 20px;"></div>
+    <h1>Kimsin?</h1>
+    <div id="user-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 500px; width: 100%; padding: 0 20px;"></div>
 </div>
 
 <div id="lightbox">
@@ -314,15 +326,16 @@
   const db = getDatabase(app);
 
   // --- Auth & Personalization ---
+  // Colors updated based on user's request
   const users = [
-    { name: "AK", color: "#FF5733" },
-    { name: "AKK", color: "#33FF57" },
-    { name: "KD", color: "#3357FF" },
-    { name: "BB", color: "#FF33A1" },
-    { name: "KBE", color: "#A133FF" },
-    { name: "MA", color: "#33FFF5" },
-    { name: "ÖÖ", color: "#FF8C33" },
-    { name: "HAC", color: "#FFE633" }
+    { name: "AK", color: "red" },
+    { name: "KD", color: "orange" },
+    { name: "MA", color: "green" },
+    { name: "AKK", color: "purple" },
+    { name: "HAC", color: "gold" },
+    { name: "KBE", color: "gray" },
+    { name: "BB", color: "blue" },
+    { name: "ÖÖ", color: "brown" }
   ];
 
   let currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -335,7 +348,6 @@
       users.forEach(u => {
           const btn = document.createElement("button");
           btn.className = "user-btn";
-          btn.style.backgroundColor = u.color;
           btn.textContent = u.name;
           btn.addEventListener("click", () => {
               currentUser = u;
@@ -471,7 +483,7 @@
       
       let badgeHTML = '';
       if (film.uploader && film.color) {
-          badgeHTML = `<div class="uploader-badge" style="background: ${film.color}; position: absolute; top: -5px; left: -5px;">${film.uploader}</div>`;
+          badgeHTML = `<div class="uploader-badge" style="background: ${film.color};">${film.uploader}</div>`;
       }
 
       div.innerHTML = `
@@ -713,7 +725,7 @@
         const data = await res.json();
         const usdRate = data.rates.USD; const tryRate = data.rates.TRY; const usdToTry = tryRate / usdRate; 
         document.querySelector("#eur-usd span").textContent = usdRate.toFixed(2);
-        document.querySelector("#eur-try span").textContent = tryRate.toFixed(2);
+        document.querySelector("#eur-try spanTo").textContent = tryRate.toFixed(2);
         const goldRes = await fetch("https://api.gold-api.com/price/XAU");
         const goldData = await goldRes.json();
         if (goldData.price) document.querySelector("#gram-gold span").textContent = ((goldData.price / 31.1035) * usdToTry).toFixed(0);
