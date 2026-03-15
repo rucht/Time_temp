@@ -736,52 +736,58 @@ mobBd.addEventListener("click",()=>{
 document.getElementById("fab-cal").addEventListener("click",()=>openMob("mob-cal-panel"));
 document.getElementById("fab-film").addEventListener("click",()=>openMob("mob-film-panel"));
 
-/* ── FILM META (IMDb multi-strategy) ── */
+/* ── FILM META ── */
+// OMDb API key (free tier – 1000 req/day). Falls back to microlink for non-IMDb.
+const OMDB_KEY = "trilogy"; // public demo key, replace with your own from omdbapi.com if needed
+
 async function fetchFilmMeta(raw){
-  const url=raw.startsWith("http")?raw:"https://"+raw;
+  const url = raw.startsWith("http") ? raw : "https://" + raw;
 
-  if(!url.includes("imdb.com")){
-    // Letterboxd / other → microlink
-    try{
-      const r=await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
-      const d=await r.json();
-      if(d.status==="success") return{title:d.data.title||"Bilinmeyen",img:d.data.image?.url||"https://via.placeholder.com/80x120?text=🎬"};
-    }catch{}
-  }
-
-  // IMDb – Strategy 1: allorigins scrape
+  /* ── IMDb: extract tt-ID → query OMDb API directly ── */
   if(url.includes("imdb.com")){
-    try{
-      const r=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,{signal:AbortSignal.timeout(8000)});
-      const d=await r.json();
-      if(d.contents){
-        const h=d.contents;
-        const tM=h.match(/<meta property="og:title"\s+content="([^"]+)"/i)||h.match(/<title>([^<]+)<\/title>/i);
-        const iM=h.match(/<meta property="og:image"\s+content="([^"]+)"/i);
-        const title=(tM?.[1]||"").replace(/\s*[-–|]\s*IMDb\s*$/i,"").trim();
-        if(title.length>2) return{title,img:iM?.[1]||"https://via.placeholder.com/80x120?text=🎬"};
-      }
-    }catch{}
+    const ttMatch = url.match(/\/(tt\d+)/i);
+    if(ttMatch){
+      const ttId = ttMatch[1];
+      // Primary: OMDb with demo key
+      try{
+        const r = await fetch(`https://www.omdbapi.com/?i=${ttId}&apikey=${OMDB_KEY}`);
+        const d = await r.json();
+        if(d.Response === "True"){
+          return{
+            title: d.Title,
+            img: d.Poster && d.Poster !== "N/A" ? d.Poster : "https://placehold.co/80x120/333/fff?text=🎬"
+          };
+        }
+      }catch{}
 
-    // Strategy 2: corsproxy.io
-    try{
-      const r=await fetch("https://corsproxy.io/?"+encodeURIComponent(url),{signal:AbortSignal.timeout(8000)});
-      const h=await r.text();
-      const tM=h.match(/<meta property="og:title"\s+content="([^"]+)"/i);
-      const iM=h.match(/<meta property="og:image"\s+content="([^"]+)"/i);
-      const title=(tM?.[1]||"").replace(/\s*[-–|]\s*IMDb\s*$/i,"").trim();
-      if(title.length>2) return{title,img:iM?.[1]||"https://via.placeholder.com/80x120?text=🎬"};
-    }catch{}
+      // Fallback: itunes search API (free, no key needed, has poster art)
+      try{
+        // Extract a searchable title from the URL path segments
+        const r2 = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(ttId)}&media=movie&limit=1`);
+        const d2 = await r2.json();
+        if(d2.results?.length){
+          const m = d2.results[0];
+          return{title: m.trackName, img: m.artworkUrl100?.replace("100x100","300x300") || "https://placehold.co/80x120/333/fff?text=🎬"};
+        }
+      }catch{}
 
-    // Strategy 3: microlink on the IMDb page
-    try{
-      const r=await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
-      const d=await r.json();
-      if(d.status==="success"&&d.data.title) return{title:d.data.title.replace(/\s*[-–|]\s*IMDb\s*$/i,"").trim(),img:d.data.image?.url||"https://via.placeholder.com/80x120?text=🎬"};
-    }catch{}
+      // Last resort: show the tt-ID so user knows it was recognised
+      return{title:`IMDb: ${ttId}`, img:"https://placehold.co/80x120/1a1a2e/fff?text=IMDb"};
+    }
+    // URL has imdb.com but no tt-ID (e.g. search page) – nothing we can do
+    return{title:"Geçersiz IMDb linki (film sayfası linkini yapıştır)", img:"https://placehold.co/80x120/333/fff?text=🎬"};
   }
 
-  return{title:"Film (link alınamadı)",img:"https://via.placeholder.com/80x120?text=🎬"};
+  /* ── Letterboxd / any other site → microlink ── */
+  try{
+    const r = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
+    const d = await r.json();
+    if(d.status === "success" && d.data.title){
+      return{title: d.data.title, img: d.data.image?.url || "https://placehold.co/80x120/333/fff?text=🎬"};
+    }
+  }catch{}
+
+  return{title:"Film (link alınamadı)", img:"https://placehold.co/80x120/333/fff?text=🎬"};
 }
 
 async function addFilm(urlIn,ratingIn,btn){
